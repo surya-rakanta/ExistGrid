@@ -1,0 +1,97 @@
+/* Panel
+----------------------------------*/
+.existgrid-panel
+{
+    overflow: hidden;
+    outline: none;
+    background-image: none;
+}
+.existgrid-panel-statecontainer
+{
+    overflow: hidden;
+    position: relative;
+    zoom:1;
+}
+.existgrid-panel-contentwrapper
+{
+    position: absolute;
+    overflow: hidden;
+
+}
+.existgrid-panel-hbarcontainer, .existgrid-panel-vbarcontainer
+{
+    font-size: 0px;
+    border:0;
+}
+.existgrid-panel-templateouterwrapper
+{
+    position: relative; 
+/*    overflow:auto; */
+    zoom: 1;
+}
+
+.existgrid-panel-vbarcontainer .ui-state-default, .existgrid-panel-hbarcontainer .ui-state-default
+{
+    width: 16px;
+    height: 16px;
+    position: absolute;
+}
+.existgrid-panel .existgrid-panel-vbarcontainer
+{
+    position: absolute;
+    width: 18px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+    border: none;
+}
+.existgrid-panel .existgrid-panel-hbarcontainer
+{
+    position: absolute;
+    height: 18px;
+    padding-left: 18px;
+    padding-right: 18px;
+    border: none;
+}
+.existgrid-panel-handle
+{
+    position: absolute;
+    font-size:0px;
+    overflow:hidden;
+}
+.existgrid-panel-handle *
+{
+    font-size:0px;
+}
+.existgrid-panel-helper
+{
+    border-style: dotted;
+    background: transparent;
+}
+
+.existgrid-panel-button
+{
+    position: absolute;
+    padding: 4px;
+}
+.existgrid-panel .ui-icon-gripsmall-diagonal-se
+{
+    background: none;
+    width: 7px;
+    height: 7px;
+}
+.existgrid-panel-hbar-buttonleft
+{
+    left: 0;
+}
+.existgrid-panel-hbar-buttonright
+{
+    right: 0;
+}
+.existgrid-panel-vbar-buttontop
+{
+    top: 0;
+}
+.existgrid-panel-vbar-buttonbottom
+{
+    bottom: 0;
+}

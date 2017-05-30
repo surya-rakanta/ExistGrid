@@ -1,12 +1,3 @@
-/*
-*
-* Custmoization of SpreadJS to Support ExistGrid object
-*
-* All copyrights goes to respective authors
-*
-* Licensed under the MIT license
-*
-*/
 (function () {
 
  var matched, browser;
@@ -84,7 +75,7 @@
                 if(event.detail)
                     delta = -event.detail / 3;
                 args.unshift(event,delta);
-                return $.event.handle.apply(event.target || event.srcElement,args)
+                return $.event.dispatch.apply(event.target || event.srcElement, args)
             }
             $.event.special.gcmousewheel = {
                 setup: function()
@@ -10072,7 +10063,9 @@
                     this._raiseInvalidOperation(msg_sheetViewPasteChangePartOfArrayFormula);
                     return false
                 }
-                if(outPara.pastedRange.row + outPara.pastedRange.rowCount > toSheet.getRowCount() || outPara.pastedRange.col + outPara.pastedRange.colCount > toSheet.getColumnCount())
+             //row can automatically added when it is not sufficient, check column only because column can't be automatically added
+             //ES, 30-05-2017
+                if(outPara.pastedRange.col + outPara.pastedRange.colCount > toSheet.getColumnCount())
                 {
                     this._raiseInvalidOperation(msg_sheetViewTheCopyAreaAndPasteAreaAreNotTheSameSize);
                     return false
@@ -10143,8 +10136,20 @@
         {
             try
             {
-                if(window.clipboardData && window.clipboardData.getData)
-                    return window.clipboardData.getData("Text")
+             var sText;
+             if (window.clipboardData && window.clipboardData.getData) {
+              sText =  window.clipboardData.getData("Text")
+             } else {
+              sText = this._hiddenTextArea.value;
+             }
+             var myChar;
+             var rChr = "";
+             for (var nI = 0; nI < sText.length; nI++) {
+              myChar = sText[nI];
+              if (myChar == '\n') myChar = '\r\n';
+              rChr += myChar;
+             }
+             return rChr;
             }
             catch(e)
             {
@@ -11751,71 +11756,69 @@
                 var ch = sheet._getClipboardHelper();
                 var fromSheet = ch.fromSheet;
                 var fromRange = ch.range;
-                var clipboardText = sheet._getClipboardData();
-                var isCutting = ch.isCutting;
-                if(isCutting)
-                {
-                    ch.fromSheet = null;
-                    ch.range = null;
-                    ch.isCutting = false
-                }
-                if(isCutting && fromSheet && fromRange && fromSheet.isProtected && fromSheet._isAnyCellInRangeLocked(fromRange))
-                    isCutting = false;
-                var outPara = {
-                        pastedRange: null,
-                        pastedInternal: false
-                    };
-                var pastedRanges = [];
-                var selections = sheet.getSelections();
-                var toRange;
-                if(selections.length > 1)
-                    for(var i = 0; i < selections.length; i++)
-                    {
-                        toRange = selections[i];
-                        if(!sheet._checkPastedRange(fromSheet,fromRange,toRange,isCutting,clipboardText,outPara))
-                            return;
-                        if(toRange.containsRange(outPara.pastedRange) && !toRange.equals(outPara.pastedRange))
-                        {
-                            sheet._raiseInvalidOperation(msg_spreadActionPasteSizeDifferent);
-                            return
-                        }
-                        pastedRanges.push(outPara.pastedRange)
-                    }
-                else if(selections.length > 0)
-                {
-                    toRange = selections[0];
-                    if(!sheet._checkPastedRange(fromSheet,fromRange,toRange,isCutting,clipboardText,outPara))
-                        return;
-                    pastedRanges.push(outPara.pastedRange)
-                }
-                else
-                {
-                    toRange = sheet._getSpanModel().find(sheet._activeRowIndex,sheet._activeColIndex);
-                    if(!toRange)
-                        toRange = new GrapeCity.UI.Range(sheet._activeRowIndex,sheet._activeColIndex,1,1);
-                    if(!sheet._checkPastedRange(fromSheet,fromRange,toRange,isCutting,clipboardText,outPara))
-                        return;
-                    pastedRanges.push(outPara.pastedRange)
-                }
-                if(pastedRanges.length > 0)
-                {
-                    if(!outPara.pastedInternal)
-                    {
-                        fromSheet = null;
-                        fromRange = null
-                    }
-                    var pasteOption = sheet.clipBoardOptions();
-                    if(isCutting)
-                        pasteOption = GrapeCity.UI.ClipboardPasteOptions.All;
-                    var pasteExtent = {
-                            fromRange: fromRange,
-                            pastedRanges: pastedRanges.slice(0),
-                            isCutting: isCutting,
-                            clipboardText: clipboardText
-                        };
-                    var pasteUndoAction = new ClipboardPasteUndoAction(sheet,fromSheet,sheet,pasteExtent,pasteOption);
-                    sheet._doCommand(pasteUndoAction)
-                }
+                sheet._hiddenTextArea.focus();
+                sheet._hiddenTextArea.select();
+                setTimeout(function () {
+                 var clipboardText = sheet._getClipboardData();
+                 var isCutting = ch.isCutting;
+                 if (isCutting) {
+                  ch.fromSheet = null;
+                  ch.range = null;
+                  ch.isCutting = false
+                 }
+                 if (isCutting && fromSheet && fromRange && fromSheet.isProtected && fromSheet._isAnyCellInRangeLocked(fromRange))
+                  isCutting = false;
+                 var outPara = {
+                  pastedRange: null,
+                  pastedInternal: false
+                 };
+                 var pastedRanges = [];
+                 var selections = sheet.getSelections();
+                 var toRange;
+                 if (selections.length > 1)
+                  for (var i = 0; i < selections.length; i++) {
+                   toRange = selections[i];
+                   if (!sheet._checkPastedRange(fromSheet, fromRange, toRange, isCutting, clipboardText, outPara))
+                    return;
+                   if (toRange.containsRange(outPara.pastedRange) && !toRange.equals(outPara.pastedRange)) {
+                    sheet._raiseInvalidOperation(msg_spreadActionPasteSizeDifferent);
+                    return
+                   }
+                   pastedRanges.push(outPara.pastedRange)
+                  }
+                 else if (selections.length > 0) {
+                  toRange = selections[0];
+                  if (!sheet._checkPastedRange(fromSheet, fromRange, toRange, isCutting, clipboardText, outPara))
+                   return;
+                  pastedRanges.push(outPara.pastedRange)
+                 }
+                 else {
+                  toRange = sheet._getSpanModel().find(sheet._activeRowIndex, sheet._activeColIndex);
+                  if (!toRange)
+                   toRange = new GrapeCity.UI.Range(sheet._activeRowIndex, sheet._activeColIndex, 1, 1);
+                  if (!sheet._checkPastedRange(fromSheet, fromRange, toRange, isCutting, clipboardText, outPara))
+                   return;
+                  pastedRanges.push(outPara.pastedRange)
+                 }
+                 if (pastedRanges.length > 0) {
+                  if (!outPara.pastedInternal) {
+                   fromSheet = null;
+                   fromRange = null
+                  }
+                  var pasteOption = sheet.clipBoardOptions();
+                  if (isCutting)
+                   pasteOption = GrapeCity.UI.ClipboardPasteOptions.All;
+                  var pasteExtent = {
+                   fromRange: fromRange,
+                   pastedRanges: pastedRanges.slice(0),
+                   isCutting: isCutting,
+                   clipboardText: clipboardText
+                  };
+                  var pasteUndoAction = new ClipboardPasteUndoAction(sheet, fromSheet, sheet, pasteExtent, pasteOption);
+                  sheet._doCommand(pasteUndoAction)
+                 }
+
+                }, 100);
             }
         },
         selectionLeft: function()

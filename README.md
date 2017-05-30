@@ -50,4 +50,6 @@ Take a look at the sample TestGrid3V2.aspx page to view the full implementation 
 
 Revisions:
 
-Add paste from external program feature
+- Add paste from external program feature and automatic add row when pasting
+- Fixed bug when doing mouse scroll
+

@@ -48,3 +48,6 @@ The save button already has the implementation of data validation and save metho
 
 Take a look at the sample TestGrid3V2.aspx page to view the full implementation of using methods inside ExistGrid, such as get row count, etc.
 
+Revisions:
+
+Add paste from external program feature
